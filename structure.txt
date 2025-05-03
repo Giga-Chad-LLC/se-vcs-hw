@@ -1,0 +1,176 @@
+
+VFS:
+    createFile(string path): VFSFile
+    createDirectory(string path): VFSDirectory
+    delete(String path): void
+    listFiles(String path): List<VFSFile>
+    getFile(String path): VFSFile
+    getDirectory(String path): VFSDirectory
+    move(String sourcePath, String destinationPath): void
+    copy(String sourcePath, String destinationPath): void
+    rename(String oldPath, String newPath): void
+    exists(String path): boolean
+    isFile(String path): boolean
+    isDirectory(String path): boolean
+
+VFSFile:
+    getName(): String
+    getPath(): String
+    getSize(): long
+    getLastModified(): Date
+    read(): byte[]
+    write(byte[] data): void
+    delete(): void
+    move(String destinationPath): void
+    copy(String destinationPath): void
+    rename(String newName): void
+    exists(): boolean
+    isFile(): boolean
+    isDirectory(): boolean
+    getParent(): VFSDirectory?
+
+LocalVFS : VFS
+
+RemoteVFS : VFS
+    RemoteVFS(host: string, credentials: Credentials)
+
+IBlobManager:
+    createBlobs(path: string): List<BlobData>
+
+IIndexManager:
+    // adds files to stage
+    register(blobs: List<BlobData>)
+    remove(path: string)
+    clean()
+    getCurrentTrackedFiles(): List<BlobData>
+    getUntrackedFiles(): Map<FileStatus, List<String>>
+    getReadyToCommitFiles(): Map<FileStatus, List<String>>
+    updateWorkingDirWithTrackedFiles()
+
+IHeadManager:
+    getHead(): String?
+    updateHead(commit: Commit)
+    createBranch(name: string)
+    removeBranch(name: string)
+    listBranches(): List<string>
+    branchToCommitHash(branchName: string): string
+    loadTreeFromCurrentHead(): TreeNode
+    loadTreeFromRevision(revision: string): TreeNode
+
+ICommitManager:
+    createCommit(message: string, blobs: List<BlobData>, parentCommitHash: string?): Commit
+    revisionCommits(revision: string): List<Commit> // i.e., log of all commits for given revision
+    revisionLastCommit(revision: string): Commit
+    blobsFromCommit(commit: Commit): List<BlobData>
+
+
+BlobManager(vfs: VFS, workingDir: string) : IBlobManager
+IndexManager(vfs: VFS, workingDir: string) : IIndexManager
+HeadManager(vfs: VFS, workingDir: string) : IHeadManager
+CommitManager(vfs: VFS, workingDir: string) : ICommitManager
+
+VCSRepository(
+    blobManager: IBlobManager,
+    indexManager: IIndexManager,
+    headManager: IHeadManager,
+    commitManager: ICommitManager,
+    remotes: List<Remote>,
+)
+
+ICli:
+    parseAndExecuteCommand(string input): CommandResult
+
+VCSCli : ICli:
+    VCSCli(repository: VCSRepository)
+
+ICommand:
+    execute(): CommandResult
+
+VCSCommand : ICommand:
+    VCSCommand(repository: VCSRepository)
+
+CommitCommand(repository: VCSRepository, message, date, autho)r : VCSCommand
+    // sets 'Commit' in CommandResult.data
+
+
+CreateBranchCommit(repository: VCSRepository, name: string) : VCSCommand
+    // sets Branch into CommandResult.data
+
+
+RemoveBranchCommand(repository: VCSRepository, name: string) : VCSCommand
+
+CheckoutCommand(repository: VCSRepository, revision: String) : VCSCommand
+    checkout expressed as:
+        1. TreeNode root = HeadManager.loadTreeFromCurrentHead()
+        2. List<BLobData> blobs = root.getBlobs();
+        3. IndexManager.register(blobs)
+        4. IndexManager.updateWorkingDirWithTrackedFiles()
+
+LogCommand(repository: VCSRepository) : VCSCommand
+    // sets List<Commit>
+
+
+MergeCommand(repository: VCSRepository, strategy: IMergeStrategy, sourceBranch: string) : VCSCommand
+    merge is expressed as:
+        1. List<BLobData> theirBlobs = HeadManager.loadTreeFromCurrentHead(sourceBranch).getBlobs()
+        1. List<BLobData> ourBlobs = HeadManager.loadTreeFromCurrentHead().getBlobs()
+        1. return strategy.merge(ourBlobs, theirBlobs)
+
+IMergeStrategy:
+    merge(ours: List<BLobData>, theirs: List<BLobData>): MergeResult
+
+CloneCommand() : VCSCommand
+FetchCommand() : VCSCommand
+PullCommand()  : VCSCommand
+PushCommand()  : VCSCommand
+
+
+==== data ====
+
+Credentials:
+    username: string
+    password: string
+
+Remote:
+    host: string
+    creadentials: Credentials
+
+BlobData:
+    file: string // actual file in the working project
+    blob: string // blob with the file content dedicated to the current file revision
+
+Commit:
+    hash: string
+    message: string
+    date: Date
+    parentHash: string?
+
+CommandResult:
+    success: bool
+    message: string
+    data: Any?
+
+MergeResult:
+    val success: Boolean,
+    val conflicts: List<MergeConflict>
+
+MergeConflict:
+    path: String,
+    base: VFSFile?,
+    ours: VFSFile,
+    theirs: VFSFile
+
+
+ITreeNode:
+    children(): List<TreeNode>
+    isBlob(): bool
+    // descendants' blob data:
+    getBlobs(): List<BlobData>
+
+Tree : TreeNode
+Blob : TreeNode
+
+enum class FileStatus:
+    MODIFIED
+    NEW
+    REMOVED

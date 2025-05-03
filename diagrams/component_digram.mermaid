@@ -1,0 +1,66 @@
+graph TB
+    CLI[CLI] --> CommandFactory
+
+    subgraph UserInterface
+        CommandFactory[Command Factory]
+    end
+
+    CommandFactory --> Commands
+
+    subgraph Commands
+        CommitCmd[Commit Command]
+        BranchCmd[Branch Command]
+        CheckoutCmd[Checkout Command]
+        LogCmd[Log Command]
+        MergeCmd[Merge Command]
+        RemoteOpsCmd[Remote Operation Commands]
+    end
+
+    Commands --> Repository
+
+    subgraph Core
+        Repository[VCS Repository]
+        Repository --> RepositoryManagers
+        Repository --> CompressionService
+    end
+
+    subgraph RepositoryManagers
+        BlobManager[Blob Manager]
+        IndexManager[Index Manager]
+        HeadManager[Head Manager]
+        CommitManager[Commit Manager]
+    end
+
+    subgraph "Merge Subsystem"
+        MergeCmd --> MergeStrategy[Merge Strategy]
+        MergeStrategy --> ConflictResolver[Conflict Resolver]
+    end
+
+    subgraph "Storage Layer"
+        FileSystem[Virtual File System] --> LocalFS[(Local File System)]
+    end
+
+    subgraph "Remote Operations"
+        RemoteOpsCmd --> NetworkClient[Network Client]
+        NetworkClient --> RemoteProtocol[Remote Protocol Handler]
+        RemoteProtocol --> Authentication[Authentication]
+    end
+
+    RemoteOpsCmd --> Repository
+    RepositoryManagers --> FileSystem
+    CommitManager --> CompressionService
+
+    subgraph "Tree Structure"
+        TreeNode[Tree Node Interface]
+        TreeNode --> TreeImpl[Tree Implementation]
+        TreeNode --> BlobImpl[Blob Implementation]
+        HeadManager --> TreeNode
+    end
+
+    classDef component fill:#131,stroke:#333,stroke-width:2px
+    classDef storage fill:#22a,stroke:#333,stroke-width:2px
+    classDef manager fill:#011,stroke:#333,stroke-width:2px
+
+    class CLI,CommandProcessor,CommandFactory,CommitCmd,BranchCmd,CheckoutCmd,LogCmd,MergeCmd,RemoteOpsCmd,MergeStrategy,ConflictResolver,Repository,NetworkClient,RemoteProtocol,Authentication,TreeNode,TreeImpl,BlobImpl component
+    class BlobManager,IndexManager,HeadManager,CommitManager manager
+    class CompressionService,FileSystem,DiskStorage,LocalFS storage
