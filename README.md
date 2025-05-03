@@ -448,6 +448,7 @@ graph TB
 
     subgraph "Storage Layer"
         FileSystem[Virtual File System] --> LocalFS[(Local File System)]
+        FileSystem[Virtual File System] --> RemoteFS[(Remote File System)]
     end
 
     subgraph "Remote Operations"
@@ -467,11 +468,11 @@ graph TB
         HeadManager --> TreeNode
     end
 
-    classDef component fill:#131,stroke:#333,stroke-width:2px
-    classDef storage fill:#22a,stroke:#333,stroke-width:2px
-    classDef manager fill:#011,stroke:#333,stroke-width:2px
+    classDef component fill:#f9f,stroke:#333,stroke-width:2px
+    classDef storage fill:#bbf,stroke:#333,stroke-width:2px
+    classDef manager fill:#fdd,stroke:#333,stroke-width:2px
 
     class CLI,CommandProcessor,CommandFactory,CommitCmd,BranchCmd,CheckoutCmd,LogCmd,MergeCmd,RemoteOpsCmd,MergeStrategy,ConflictResolver,Repository,NetworkClient,RemoteProtocol,Authentication,TreeNode,TreeImpl,BlobImpl component
     class BlobManager,IndexManager,HeadManager,CommitManager manager
-    class CompressionService,FileSystem,DiskStorage,LocalFS storage
+    class CompressionService,FileSystem,DiskStorage,LocalFS,RemoteFS storage
 ```
