@@ -1,5 +1,15 @@
 # Задание 13 | VCS
 
+
+## Участники
+
+1. Владислав Артюхов
+1. Дмитрий Артюхов
+1. Дмитрий Юкачев
+
+
+## Структура репозитория
+
 Сделано как 2 диаграммы, так как неудобно на одной:
 
 1. Mermaid диаграмма классов: [class_diagram.mermaid](./diagrams/class_diagram.mermaid), [editor link](https://www.mermaidchart.com/app/projects/e8b244f9-a05c-4830-bf12-d70ae0a6d8e1/diagrams/bc5aa98a-b01b-465f-9554-61c60a71d768/version/v0.1/edit), [CSV link](https://www.mermaidchart.com/raw/bc5aa98a-b01b-465f-9554-61c60a71d768?theme=light&version=v0.1&format=svg).
@@ -31,12 +41,6 @@ BlobData:
     file: string // actual file in the working project
     blob: string // blob with the file content dedicated to the current file revision
 ```
-
-## Участники
-
-1. Владислав Артюхов
-1. Дмитрий Артюхов
-1. Дмитрий Юкачев
 
 
 ## Диаграмма классов
