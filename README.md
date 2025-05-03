@@ -1,1 +1,3 @@
 # se-vcs-hw
+
+**Доступ к Диаграмме в Google Drive**: [здесь](https://drive.google.com/file/d/1pHDWIN0i_FIL0g7YXtWyv2XML4Gb0NV-/view?usp=sharing).
